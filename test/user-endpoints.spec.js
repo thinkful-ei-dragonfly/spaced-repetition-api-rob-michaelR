@@ -182,6 +182,8 @@ describe('User Endpoints', function () {
             { original: 'mer', translation: 'sea' },
             { original: 'escaliers', translation: 'stairs' },
             { original: 'clavier', translation: 'keyboard' },
+            { original: 'foudre', translation: 'lightning' },
+            { original: 'livre', translation: 'book' },
             { original: 'feu', translation: 'fire' },
           ]
         }

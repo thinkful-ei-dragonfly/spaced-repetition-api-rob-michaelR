@@ -28,7 +28,9 @@ VALUES
   (5, 1, 'mer', 'sea', 6),
   (6, 1, 'escaliers', 'stairs', 7),
   (7, 1, 'clavier', 'keyboard', 8),
-  (8, 1, 'feu', 'fire', null);
+  (8, 1, 'foudre', 'lightning', 9),
+  (9, 1, 'livre', 'book', 10),
+  (10, 1, 'feu', 'fire', null);
 
 UPDATE "language" SET head = 1 WHERE id = 1;
 

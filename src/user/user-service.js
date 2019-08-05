@@ -65,6 +65,8 @@ const UserService = {
         ['mer', 'sea', 6],
         ['escaliers', 'stairs', 7],
         ['clavier', 'keyboard', 8],
+        ['foudre', 'lightning', 9],
+        ['livre', 'book', 10],
         ['feu', 'fire', null],
       ]
 
