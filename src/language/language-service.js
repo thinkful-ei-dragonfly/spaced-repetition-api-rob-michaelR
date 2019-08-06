@@ -39,6 +39,15 @@ const LanguageService = {
       .where({ id })
       .first();
   },
+  fillWordList(db, language_id, list) {
+    this.getLanguageWords(db, language_id)
+      .then((words) => {
+        for (let i = 0; i < words.length; i++) {
+          
+        }
+      })
+    for ()
+  }
 }
 
 module.exports = LanguageService

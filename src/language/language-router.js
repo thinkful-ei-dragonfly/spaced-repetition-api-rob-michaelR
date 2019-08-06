@@ -1,8 +1,10 @@
 const express = require('express')
 const LanguageService = require('./language-service')
 const { requireAuth } = require('../middleware/jwt-auth')
+const WordLinkedList = require('../WordLinkedList/WordLinkedList.js')
 
 const languageRouter = express.Router()
+const bodyParser = express.json()
 
 languageRouter
   .use(requireAuth)
@@ -32,6 +34,7 @@ languageRouter
         req.app.get('db'),
         req.language.id,
       )
+      console.log(words);
 
       res.json({
         language: req.language,
@@ -60,9 +63,24 @@ languageRouter
   })
 
 languageRouter
-  .post('/guess', async (req, res, next) => {
+  .route('/guess')
+  .post(bodyParser, async (req, res, next) => {
+    console.log(req.body);
+    if (!Object.keys(req.body).includes('guess')) {
+      res.status(400).send({
+        error: `Missing 'guess' in request body`,
+      })
+    }
+    // guess is being sent in here... 
+    
+    // make new Linked List to hold words
+    let wordList = new WordLinkedList();
+    LanguageService.fillWordList(req.app.get('db'), req.language.id, wordList)
+
+    
+    // where is this linked list being kept?
     // implement me
-    res.send('implement me!')
+    // res.send('implement me!')
   })
 
 module.exports = languageRouter
