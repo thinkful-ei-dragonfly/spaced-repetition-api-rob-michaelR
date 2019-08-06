@@ -7,7 +7,7 @@ class _Node {
   }
 }
 
-class WordLinkedList {
+class LinkedList {
   constructor() {
     this.head = null;
   }
@@ -168,4 +168,4 @@ function findLast(list) {
   return currNode.value;
 }
 
-module.exports = WordLinkedList;
+module.exports = LinkedList;

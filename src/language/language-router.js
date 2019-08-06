@@ -1,7 +1,7 @@
 const express = require('express')
 const LanguageService = require('./language-service')
 const { requireAuth } = require('../middleware/jwt-auth')
-const WordLinkedList = require('../WordLinkedList/WordLinkedList.js')
+const WordLinkedList = require('../LinkedList/LinkedList.js')
 
 const languageRouter = express.Router()
 const bodyParser = express.json()
@@ -71,16 +71,38 @@ languageRouter
         error: `Missing 'guess' in request body`,
       })
     }
-    // guess is being sent in here... 
-    
-    // make new Linked List to hold words
-    let wordList = new WordLinkedList();
-    LanguageService.fillWordList(req.app.get('db'), req.language.id, wordList)
 
+    const words = await LanguageService.getLanguageWords(
+      req.app.get('db'),
+      req.language.id,
+    )
+    const wordList = LanguageService.fillWordList(req.app.get('db'), req.language, words)
     
-    // where is this linked list being kept?
-    // implement me
-    // res.send('implement me!')
+    LanguageService.fillWordList(req.app.get('db'), req.language, wordList)
+     .then(words => {
+      if (req.body.guess === wordList.head.translation) {
+        // NEED TO MOVE WORD M
+        // iterate count up on server too??
+        res.status(200).json( { 
+          'nextWord': wordList.head.next.value.original, // EX: "test-next-word-from-incorrect-guess", need to check M instead?
+          'wordCorrectCount': ++wordList.head.value.correct_count,
+          'wordIncorrectCount': wordList.head.value.incorrect_count,
+          'totalScore': ++wordList.head.totalScore,
+          'answer': req.body.guess, // EX: "test answer from correct guess"
+          'isCorrect': true,
+        } );
+      } else {
+        res.status(200).json({ 
+          'nextWord': wordList.head.next.value.original, // EX: 'test-next-word-from-incorrect-guess', need to check M instead?
+          'wordCorrectCount': wordList.head.value.correct_count,
+          'wordIncorrectCount': ++wordList.head.value.incorrect_count,
+          'totalScore': --wordList.head.totalScore,
+          'answer': req.body.guess, // EX: "test answer from incorrect guess"
+          'isCorrect': false,
+        })
+      }
+     })
+   
   })
 
 module.exports = languageRouter
