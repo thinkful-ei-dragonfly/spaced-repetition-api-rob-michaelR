@@ -45,8 +45,18 @@ languageRouter
 
 languageRouter
   .get('/head', async (req, res, next) => {
-    // implement me
-    res.send('implement me!')
+    // return the next quiz word to be asked
+    try {
+      const nextQuizWord = await LanguageService.getNextQuizWord(req.app.get('db'), req.language.head)
+      res.status(200).json( {
+        nextWord: nextQuizWord.original,
+        wordCorrectCount: nextQuizWord.correct_count,
+        wordIncorrectCount: nextQuizWord.incorrect_count,
+        totalScore: req.language.total_score
+      }) 
+    } catch (e) {
+      next(e)
+    }
   })
 
 languageRouter

@@ -28,6 +28,17 @@ const LanguageService = {
       )
       .where({ language_id })
   },
+  getNextQuizWord(db, id) {
+    // add any additional fields??
+    return db('word')
+      .select('id',
+      'next',
+      'original',
+      'correct_count',
+      'incorrect_count')
+      .where({ id })
+      .first();
+  },
 }
 
 module.exports = LanguageService
