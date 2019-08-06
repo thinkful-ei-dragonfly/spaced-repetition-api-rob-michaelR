@@ -210,7 +210,7 @@ describe.only('Language Endpoints', function () {
       })
     })
 
-    context(`Given correct guess`, () => {
+    context.only(`Given correct guess`, () => {
       const testLanguagesWords = testWords.filter(
         word => word.language_id === testLanguage.id
       )
@@ -234,7 +234,7 @@ describe.only('Language Endpoints', function () {
           })
       })
 
-      it.only(`moves the word 2 spaces, increases score and correct count`, async () => {
+      it(`moves the word 2 spaces, increases score and correct count`, async () => {
         let correctPostBody = {
           guess: testLanguagesWords[0].translation,
         }

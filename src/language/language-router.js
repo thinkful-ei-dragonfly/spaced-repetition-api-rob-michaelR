@@ -84,18 +84,27 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
   if (req.body.guess === wordList.head.value.translation) {
     // NEED TO MOVE WORD M
     // iterate count up on server too??
-    LanguageService.incrementMemory(wordList.head.value.id)
+    wordList.head.value.correct_count++; // increase correct count for curr word
+    wordList.head.value.memory_value = 1; // reset memory value to 1
+    await LanguageService.updateWord(req.app.get('db'), wordList.head) //async await?? //WRONG
+    await LanguageService.incrementTotalScore(req.app.get('db'), req.language.id);
+    wordList.head = wordList.head.next;
     res.status(200).json({
-      nextWord: wordList.head.next.value.original, // EX: "test-next-word-from-incorrect-guess", need to check M instead?
+      nextWord: wordList.head.value.original, // EX: "test-next-word-from-incorrect-guess", need to check M instead?
       wordCorrectCount: wordList.head.value.correct_count,
       wordIncorrectCount: wordList.head.value.incorrect_count,
-      totalScore: ++wordList.total_score,
+      totalScore: wordList.total_score,
       answer: req.body.guess, // EX: "test answer from correct guess"
       isCorrect: true,
     });
   } else {
+    wordList.head.value.correct_count--; // increase correct count for curr word
+    wordList.head.value.memory_value *= 2; // reset memory value to 1
+    await LanguageService.updateWord(req.app.get('db'), wordList.head) //async await??
+    await LanguageService.incrementTotalScore(req.app.get('db'), req.language.id);
+    wordList.head = wordList.head.next;
     res.status(200).json({
-      nextWord: wordList.head.next.value.original, // EX: 'test-next-word-from-incorrect-guess', need to check M instead?
+      nextWord: wordList.head.value.original, // EX: 'test-next-word-from-incorrect-guess', need to check M instead?
       wordCorrectCount: wordList.head.value.correct_count,
       wordIncorrectCount: wordList.head.value.incorrect_count,
       totalScore: wordList.total_score,
