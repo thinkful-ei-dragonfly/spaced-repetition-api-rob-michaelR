@@ -234,7 +234,7 @@ describe.only('Language Endpoints', function () {
           })
       })
 
-      it(`moves the word 2 spaces, increases score and correct count`, async () => {
+      it.only(`moves the word 2 spaces, increases score and correct count`, async () => {
         let correctPostBody = {
           guess: testLanguagesWords[0].translation,
         }

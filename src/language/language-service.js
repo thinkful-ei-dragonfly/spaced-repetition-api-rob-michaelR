@@ -46,6 +46,9 @@ const LanguageService = {
     wordList.total_score = language.total_score;
     console.log('language head: ', language.head);
     let word = words.find(w => w.id === language.head);
+   
+    console.log('WORDS: ', words)
+    console.log('WORD: ', word);
     wordList.insertFirst({
       id: word.id,
       original: word.original,
@@ -65,9 +68,15 @@ const LanguageService = {
         incorrect_count: word.incorrect_count
       } );
     }
-    console.log(JSON.stringify(wordList, null, 2));
+    console.log('returned wordList: ', JSON.stringify(wordList, null, 2));
     return wordList;
   },
+  incrementMemory(wordId) {
+
+  },
+  resetMemory(wordId) {
+
+  }
 };
 
 module.exports = LanguageService;
