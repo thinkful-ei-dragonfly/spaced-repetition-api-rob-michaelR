@@ -1,7 +1,7 @@
 const app = require('../src/app')
 const helpers = require('./test-helpers')
 
-describe.only('Language Endpoints', function () {
+describe('Language Endpoints', function () {
   let db
 
   const testUsers = helpers.makeUsersArray()
@@ -210,7 +210,7 @@ describe.only('Language Endpoints', function () {
       })
     })
 
-    context.only(`Given correct guess`, () => {
+    context(`Given correct guess`, () => {
       const testLanguagesWords = testWords.filter(
         word => word.language_id === testLanguage.id
       )

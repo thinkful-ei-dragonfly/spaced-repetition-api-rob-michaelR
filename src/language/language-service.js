@@ -44,11 +44,10 @@ const LanguageService = {
     wordList.id = language.id;
     wordList.name = language.name; // french
     wordList.total_score = language.total_score;
-    console.log('language head: ', language.head);
     let word = words.find(w => w.id === language.head);
 
-    console.log('WORDS: ', words);
-    console.log('WORD: ', word);
+    // console.log('WORDS: ', words);
+    // console.log('WORD: ', word);
     wordList.insertFirst({
       id: word.id,
       original: word.original,
@@ -85,7 +84,32 @@ const LanguageService = {
     return db
       .from('language')
       .where({ id: language.id })
-      .update({ total_score: language.total_score + 1 })
+      .update({ total_score: language.total_score + 1 });
+  },
+  persistLinkedList(db, linkedLanguage) {
+    return db.transaction(trx =>
+      Promise.all([
+        db('language')
+          .transacting(trx)
+          .where('id', linkedLanguage.id)
+          .update({
+            total_score: linkedLanguage.total_score,
+            head: linkedLanguage.head.value.id,
+          }),
+
+        ...linkedLanguage.forEach(node =>
+          db('word')
+            .transacting(trx)
+            .where('id', node.value.id)
+            .update({
+              memory_value: node.value.memory_value,
+              correct_count: node.value.correct_count,
+              incorrect_count: node.value.incorrect_count,
+              next: node.next ? node.next.value.id : null,
+            })
+        ),
+      ])
+    );
   },
 };
 

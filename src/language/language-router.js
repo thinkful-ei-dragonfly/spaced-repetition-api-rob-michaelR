@@ -17,7 +17,6 @@ languageRouter.use(requireAuth).use(async (req, res, next) => {
       return res.status(404).json({
         error: `You don't have any languages`,
       });
-
     req.language = language;
     next();
   } catch (error) {
@@ -61,56 +60,56 @@ languageRouter.get('/head', async (req, res, next) => {
 });
 
 languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
-  // console.log(req.body);
   if (!Object.keys(req.body).includes('guess')) {
-    res.status(400).send({
+    res.status(400).json({
       error: `Missing 'guess' in request body`,
     });
+    next();
   }
 
   const words = await LanguageService.getLanguageWords(
     req.app.get('db'),
     req.language.id
   );
-  console.log('words: ', words);
   const wordList = LanguageService.fillWordList(
     req.app.get('db'),
     req.language,
     words
   );
 
-  // LanguageService.fillWordList(req.app.get('db'), req.language, wordList)
-  //  .then(words => {
   if (req.body.guess === wordList.head.value.translation) {
-    // NEED TO MOVE WORD M
-    // iterate count up on server too??
     wordList.head.value.correct_count++; // increase correct count for curr word
-    wordList.head.value.memory_value = 1; // reset memory value to 1
-    await LanguageService.updateWord(req.app.get('db'), wordList.head) //async await?? //WRONG
-    await LanguageService.incrementTotalScore(req.app.get('db'), req.language.id);
-    wordList.head = wordList.head.next;
-    res.status(200).json({
-      nextWord: wordList.head.value.original, // EX: "test-next-word-from-incorrect-guess", need to check M instead?
-      wordCorrectCount: wordList.head.value.correct_count,
-      wordIncorrectCount: wordList.head.value.incorrect_count,
-      totalScore: wordList.total_score,
-      answer: req.body.guess, // EX: "test answer from correct guess"
-      isCorrect: true,
-    });
+    wordList.head.value.memory_value *= 2; // double memory value, moving head/word M spaces back
+    wordList.total_score++;
+    wordList.moveHeadBy(wordList.head.value.memory_value);
+    LanguageService.persistLinkedList(req.app.get('db'), wordList)
+      .then(() => {
+        res.status(200).json({
+          nextWord: wordList.head.value.original, 
+          wordCorrectCount: wordList.head.value.correct_count,
+          wordIncorrectCount: wordList.head.value.incorrect_count,
+          totalScore: wordList.total_score,
+          answer: req.body.guess, // guess is correct answer
+          isCorrect: true,
+        });
+      })
+    
   } else {
-    wordList.head.value.correct_count--; // increase correct count for curr word
-    wordList.head.value.memory_value *= 2; // reset memory value to 1
-    await LanguageService.updateWord(req.app.get('db'), wordList.head) //async await??
-    await LanguageService.incrementTotalScore(req.app.get('db'), req.language.id);
-    wordList.head = wordList.head.next;
-    res.status(200).json({
-      nextWord: wordList.head.value.original, // EX: 'test-next-word-from-incorrect-guess', need to check M instead?
-      wordCorrectCount: wordList.head.value.correct_count,
-      wordIncorrectCount: wordList.head.value.incorrect_count,
-      totalScore: wordList.total_score,
-      answer: req.body.guess, // EX: "test answer from incorrect guess"
-      isCorrect: false,
-    });
+    wordList.head.value.incorrect_count++; // increase incorrect count for curr word
+    wordList.head.value.memory_value = 1; // reset memory value to 1
+    let rightAnswer = wordList.head.value.translation; // store right answer before moving head
+    wordList.moveHeadBy(wordList.head.value.memory_value);
+    LanguageService.persistLinkedList(req.app.get('db'), wordList)
+      .then(() => {
+        res.status(200).json({
+          nextWord: wordList.head.value.original,
+          wordCorrectCount: wordList.head.value.correct_count,
+          wordIncorrectCount: wordList.head.value.incorrect_count,
+          totalScore: wordList.total_score,
+          answer: rightAnswer, // translation is right answer, guess wrong
+          isCorrect: false,
+        });
+      })
   }
 });
 
