@@ -67,7 +67,7 @@ const LanguageService = {
         incorrect_count: word.incorrect_count,
       });
     }
-    console.log('returned wordList: ', JSON.stringify(wordList, null, 2));
+    // console.log('returned wordList: ', JSON.stringify(wordList, null, 2));
     return wordList;
   },
   updateWord(db, word) {

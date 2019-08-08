@@ -6,7 +6,9 @@ const WordLinkedList = require('../LinkedList/LinkedList.js');
 const languageRouter = express.Router();
 const bodyParser = express.json();
 
-languageRouter.use(requireAuth).use(async (req, res, next) => {
+languageRouter
+  .use(requireAuth)
+  .use(async (req, res, next) => {
   try {
     const language = await LanguageService.getUsersLanguage(
       req.app.get('db'),
@@ -48,7 +50,7 @@ languageRouter.get('/head', async (req, res, next) => {
       req.app.get('db'),
       req.language.head
     );
-    res.status(200).json({
+    res.json({
       nextWord: nextQuizWord.original,
       wordCorrectCount: nextQuizWord.correct_count,
       wordIncorrectCount: nextQuizWord.incorrect_count,
@@ -61,10 +63,9 @@ languageRouter.get('/head', async (req, res, next) => {
 
 languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
   if (!Object.keys(req.body).includes('guess')) {
-    res.status(400).json({
+    return res.status(400).json({
       error: `Missing 'guess' in request body`,
     });
-    next();
   }
 
   const words = await LanguageService.getLanguageWords(
@@ -84,7 +85,7 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
     wordList.moveHeadBy(wordList.head.value.memory_value);
     LanguageService.persistLinkedList(req.app.get('db'), wordList)
       .then(() => {
-        res.status(200).json({
+        res.json({
           nextWord: wordList.head.value.original, 
           wordCorrectCount: wordList.head.value.correct_count,
           wordIncorrectCount: wordList.head.value.incorrect_count,
@@ -92,8 +93,8 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
           answer: req.body.guess, // guess is correct answer
           isCorrect: true,
         });
+        next();
       })
-    
   } else {
     wordList.head.value.incorrect_count++; // increase incorrect count for curr word
     wordList.head.value.memory_value = 1; // reset memory value to 1
@@ -101,7 +102,7 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
     wordList.moveHeadBy(wordList.head.value.memory_value);
     LanguageService.persistLinkedList(req.app.get('db'), wordList)
       .then(() => {
-        res.status(200).json({
+        res.json({
           nextWord: wordList.head.value.original,
           wordCorrectCount: wordList.head.value.correct_count,
           wordIncorrectCount: wordList.head.value.incorrect_count,
@@ -109,6 +110,7 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
           answer: rightAnswer, // translation is right answer, guess wrong
           isCorrect: false,
         });
+        next();
       })
   }
 });
