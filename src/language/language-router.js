@@ -6,9 +6,7 @@ const WordLinkedList = require('../LinkedList/LinkedList.js');
 const languageRouter = express.Router();
 const bodyParser = express.json();
 
-languageRouter
-  .use(requireAuth)
-  .use(async (req, res, next) => {
+languageRouter.use(requireAuth).use(async (req, res, next) => {
   try {
     const language = await LanguageService.getUsersLanguage(
       req.app.get('db'),
@@ -80,38 +78,39 @@ languageRouter.route('/guess').post(bodyParser, async (req, res, next) => {
 
   if (req.body.guess === wordList.head.value.translation) {
     wordList.head.value.correct_count++; // increase correct count for curr word
-    wordList.head.value.memory_value *= 2; // double memory value, moving head/word M spaces back
+    wordList.head.value.memory_value =
+      (wordList.head.value.memory_value * 2 >= wordList.listNodes().length
+        ? wordList.listNodes().length - 1
+        : wordList.head.value.memory_value * 2); // double memory value, moving head/word M spaces back
     wordList.total_score++;
     wordList.moveHeadBy(wordList.head.value.memory_value);
-    LanguageService.persistLinkedList(req.app.get('db'), wordList)
-      .then(() => {
-        res.json({
-          nextWord: wordList.head.value.original, 
-          wordCorrectCount: wordList.head.value.correct_count,
-          wordIncorrectCount: wordList.head.value.incorrect_count,
-          totalScore: wordList.total_score,
-          answer: req.body.guess, // guess is correct answer
-          isCorrect: true,
-        });
-        next();
-      })
+    LanguageService.persistLinkedList(req.app.get('db'), wordList).then(() => {
+      res.json({
+        nextWord: wordList.head.value.original,
+        wordCorrectCount: wordList.head.value.correct_count,
+        wordIncorrectCount: wordList.head.value.incorrect_count,
+        totalScore: wordList.total_score,
+        answer: req.body.guess, // guess is correct answer
+        isCorrect: true,
+      });
+      next();
+    });
   } else {
     wordList.head.value.incorrect_count++; // increase incorrect count for curr word
     wordList.head.value.memory_value = 1; // reset memory value to 1
     let rightAnswer = wordList.head.value.translation; // store right answer before moving head
     wordList.moveHeadBy(wordList.head.value.memory_value);
-    LanguageService.persistLinkedList(req.app.get('db'), wordList)
-      .then(() => {
-        res.json({
-          nextWord: wordList.head.value.original,
-          wordCorrectCount: wordList.head.value.correct_count,
-          wordIncorrectCount: wordList.head.value.incorrect_count,
-          totalScore: wordList.total_score,
-          answer: rightAnswer, // translation is right answer, guess wrong
-          isCorrect: false,
-        });
-        next();
-      })
+    LanguageService.persistLinkedList(req.app.get('db'), wordList).then(() => {
+      res.json({
+        nextWord: wordList.head.value.original,
+        wordCorrectCount: wordList.head.value.correct_count,
+        wordIncorrectCount: wordList.head.value.incorrect_count,
+        totalScore: wordList.total_score,
+        answer: rightAnswer, // translation is right answer, guess wrong
+        isCorrect: false,
+      });
+      next();
+    });
   }
 });
 
