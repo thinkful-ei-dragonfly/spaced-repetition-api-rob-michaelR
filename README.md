@@ -1,4 +1,16 @@
-# Spaced repetition API!
+# Spaced-Repetition API
+
+This back-end web server utilizes spaced repetition to help people memorize words in French. It hosts words in French and asks you to recall the translation of the corresponding word in English.
+
+As a prospective user, you can register an account so that you can login and use the application to save your progress. As a registered user, you can login to the application to begin learning.
+
+The home dashboard shows your language, words to learn, and score for each word. The learning page asks you to input the translation of a word, which will subsequently give you feedback on whether you were correct. The words that you miss more frequently are shown more frequently. Upon mastery of each word, each word will get asked progressively less often.
+
+## Live Demo (front-end and back-end integrated link): https://spaced-repetition.michaelromero09.now.sh
+## backend domain (for HTTP request purposes): https://spaced-rep-server1.herokuapp.com
+
+## Getting Started
+These instructions will get you a copy of the front-end project up and running on your local machine for development and testing purposes. This client runs locally in conjunction with the Spaced-Repetition client, which can be found at https://github.com/thinkful-ei-dragonfly/spaced-repetition-api-rob-michaelR).
 
 ## Local dev setup
 
@@ -50,3 +62,50 @@ Run the tests mode `npm test`
 Run the migrations up `npm run migrate`
 
 Run the migrations down `npm run migrate -- 0`
+
+
+## Prerequisites
+- Node.js
+- NPM (Node Package Manager)
+- PostgreSQL
+
+
+## Built With
+- Node package manager - Dependency Management
+- Node.js
+- Express
+- Chai, Mocha
+
+
+## Endpoints
+
+### User Registration endpoint
+`POST https://spaced-rep-server1.herokuapp.com/api/user`
+- request body = { password: 'pw', username: 'user', name: 'name of user' }
+
+### Authentication endpoint
+`POST https://spaced-rep-server1.herokuapp.com/api/auth/token`
+- returns a json web token
+- request body: { username: 'username', password: 'password'
+
+`PUT https://spaced-rep-server1.herokuapp.com/api/auth/token`
+- returns a json web token
+- request body: { id, name }
+
+### Language endpoint
+`GET https://spaced-rep-server1.herokuapp.com/api/language`
+- returns the foreign language words in database
+
+`GET https://spaced-rep-server1.herokuapp.com/api/language/head`
+- returns word at beginning of list
+
+`POST https://spaced-rep-server1.herokuapp.com/api/language/guess`
+- submits a new guess for the next word in the list
+- request body = { guess: 'guess' }
+
+
+### Authors
+- Robert Wiggins 
+- Michael Romero
+- tomatou (github) - authentication starter code
+- Jonathan Lassen - authentication starter code 
