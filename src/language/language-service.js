@@ -32,7 +32,6 @@ const LanguageService = {
       .where({ language_id });
   },
   getNextQuizWord(db, id) {
-    // add any additional fields??
     return db('word')
       .select('id', 'next', 'original', 'correct_count', 'incorrect_count')
       .where({ id })
@@ -40,14 +39,11 @@ const LanguageService = {
   },
   fillWordList(db, language, words) {
     let wordList = new LinkedList(); // import linked list
-    // need the language object, entire language
     wordList.id = language.id;
     wordList.name = language.name; // french
     wordList.total_score = language.total_score;
     let word = words.find(w => w.id === language.head);
 
-    // console.log('WORDS: ', words);
-    // console.log('WORD: ', word);
     wordList.insertFirst({
       id: word.id,
       original: word.original,
@@ -67,7 +63,6 @@ const LanguageService = {
         incorrect_count: word.incorrect_count,
       });
     }
-    // console.log('returned wordList: ', JSON.stringify(wordList, null, 2));
     return wordList;
   },
   updateWord(db, word) {
